@@ -1,0 +1,64 @@
+https://www.mathworks.com/help/simulink/ug/set-up-git-source-control.html#bt7ggm1-1
+
+1) cygwin
+2) add path
+3) token
+
+rec:
+1) git for windows
+    default option, but recommend Notepad++
+2) ssh-keygen, enter 3x
+Note path to id_rsa.pub
+3) git = settings().matlab.sourcecontrol.git;
+git.KeyHasPassphrase.PersonalValue = true;
+4) Copy id_rsa.pub contents, github upper right -> settings
+5) Make sure to remember token
+
+MATLAB version 2021a or later is strongly recommended.
+aa
+You may wish to try a tutorial, such as:
+https://guides.github.com/activities/hello-world/
+This is an involved process, follow carefully
+
+A) Install software and dependencies:
+1) Create an account at github.com
+                                2) Install GitHub application from
+   https://git-scm.com/downloads
+3) Windows: install cygwin:
+    https://cygwin.com/install.html
+        ALL PACKAGES?
+4) Configure the path to cygwin.
+        cd(prefdir)
+        edit javalibrarypath.txt
+    Add on a blank line the path to cygwin
+        Default: C:\cygwin64\bin\
+5) Restart Matlab
+
+B) Link GitHub and MATLAB
+1) Open GitHub CMD, type
+    ssh-keygen
+    Hit Enter 3 times. This will create a file with the default name
+        id_rsa.pub
+2) Open the .pub file this creates in a TEXT EDITOR ("Open with...")
+   It can be found by typing in MATLAB:
+        Windows: getenv('USERPROFILE')
+        Mac/Linux: getenv('HOME')
+   From there, navigate 1 directory down to \.ssh\ folder. Open the .pub file
+3) Copy the entire contents of the file. It should be 1 line starting with:
+    "ssh-rsa"
+4) Go to github.com, log in, and click your icon in the upper right then "Settings"
+5) In the "SSH and GPG keys" tab on left, click "New SSH key". Give it a title
+    and paste the .pub contents. Finish adding it.
+
+In GitHub, go to your profile icon in upper right > Settings > Developer settings > Personal access tokens.
+Create a new one and then SAVE THE RESULTING KEY. This is your "password" in MATLAB.
+
+C) Connect this particular project
+
+1) Download project from https://github.com/sfoneil/ColorConversions
+    Click the green button with "Code" and "Download ZIP" from dropdown.
+    Extract the .zip to a folder of your choice.
+ start with ssh-rsa
+3) In Matlab, open NewColorConversions.prj
+
+...2

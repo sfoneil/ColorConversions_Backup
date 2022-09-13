@@ -1,0 +1,194 @@
+close all
+clear
+
+display = 'home_not_light_controlled';
+load(strcat(display, '.mat'));
+fprintf('Loading screeen profile: %s\n', display);
+
+spaces = {'dkl', 'mb', 'mw', 'xyz', 'xyy', 'luv', 'lab', 'lms', ...
+    'hsv', 'rgb', 'srgb'};
+
+prompt = 0;
+fprintf('Enter your start space using the capital letters.\n')
+fprintf('   1. DKL\n   2. MacLeod-Boynton\n   3. MW\n   4. XYZ\n')
+fprintf('   5. xyY chromaticity\n   6. L*u*v* coordinates\n')
+fprintf('   7. L*a*b*\n   8. LMS cones\n   9. HSV\n')
+
+while ~any(prompt==1:10)
+    prompt = input('Enter start space: ');
+end
+startSpace = spaces{prompt};
+
+endSpace = 'rgb';
+conv = strcat(startSpace, '2', endSpace);
+func = str2func(conv);
+kwargs = [];
+% Get values
+while 1
+    fprintf('You chose: %s\n', startSpace);
+    if strcmpi(startSpace,'dkl')
+        prompt = input('Enter your DKL values [Lum Angle Contrast] in degrees\n\n>>   ', 's');
+    else
+        prompt = input('Enter your 3 values separated by spaces\n\n>>   ', 's');
+    end
+    vals = split(prompt); % Make a cell array
+    vals = str2double(vals');
+    
+    if numel(vals) == 3
+        break
+    end
+    fprintf('You need 3 values, please try again.\n\n')
+end
+% if strcmpi(startSpace,'dkl')
+%     vals = [vals(3) vals(2) vals(1)];
+% end
+if strcmpi(startSpace,'dkl')
+    dklvals = dkl2cart(vals);
+    while 1
+        fprintf('You also need a background field.\n');
+        prompt = input('Input the 3 background RGB values:\n\n>>   ', 's');
+        bkgd = split(prompt);
+        bkgd = str2double(bkgd');
+        if numel(bkgd) == 3
+            break
+        end
+        fprintf('You need 3 values, please try again.\n\n')
+    end
+    cont = 80;
+    lmRot = 0;
+    sRot = 90;
+    mmLM = 0;
+    mmS = 0;
+end
+
+fprintf('Do you wish to enter any options?\n')
+prompt = input('Y/N\n','s');
+
+if strcmpi(prompt,'y')
+
+    switch upper(startSpace)
+        case 'DKL'
+            prompt = 0;
+
+            lmRot = input('Enter LM rotation (from 0): ');
+            sRot = input('Enter S rotation (from 90): ');
+%             cont = input('Enter contrast (def 80): ');
+%             mmLM = input('Enter LM minimum motion (def 0): ');
+%             mmS = input('Enter S minimum motion (def 0): ');
+
+%             while ~any(prompt==1:2)
+%                 fprintf('These spaces can use Cartesian coordinates (L%s)', lower(startSpace(2:3)));
+%                 fprintf(' or cylindrical (LCh%s).\n', lower(startSpace(2:3)));
+%                 fprintf('   1. Cartesian\n   2. Cylindrical\n')
+%                 prompt = input('Which? ');
+%             end
+%             if prompt == 1
+%                 Lspace = "'Cartesian'";
+%             elseif prompt == 2
+%                 Lspace = "'Cylindrical'";
+%                 % Combine arguments
+%                 kwargs = {"Space", Lspace};
+% 
+%             end
+        case {'LUV', 'LAB'}
+            % White point
+            wpIn = 0;
+            wps = {'A', 'C', 'D50', 'D55', 'D65', 'D75', 'F2', 'F7', 'F11', 'E', 'Cambridge Colour Test settings', 'TriVal'};
+            fprintf('This space uses a reference white point. Which of the following do you want to use?\n');
+            fprintf('   1. A\n   2. C\n   3. D50\n   4. D55\n   5. D65\n   6. D75\n   7. F2\n');
+            fprintf('   8. F7\n   9. F11\n   10. E\n   11. Cambridge Colour Test settings\n   12. TriVal')
+            while ~any(wpIn==1:12)
+                wpIn = input('Selection: ');
+            end
+            obsIn = 0;
+            if wpIn <= 9
+                while ~any(obsIn==1:2)
+                    fprintf('Do you want the 2-degree or 10-degree observer?\n   1) 2-degree\n   2) 10-degree? ')
+                    obsIn = input(': ');
+                end
+                obsIn = (obsIn-1).*8+2; % kludge: 1=2, 2=10
+            elseif wpIn <=11
+                obsIn = []; % No 2/10
+            end
+            wp = "'" + wps{wpIn} + "_" + obsIn + "'"; % String, converted to nums in the function
+
+            % Custom white point/origin
+            if wpIn == 12
+                while 1
+                    fprintf('Enter your 3 values separated by spaces.\n')
+                    bkgd = split(prompt); % Make a cell array
+                    bkgd = str2double(bkgd');
+                    if numel(bkgd) == 3
+                        break
+                    end
+                    fprintf('You need 3 values, please try again.\n\n')
+                end
+            end
+
+            prompt = 0;
+            while ~any(prompt==1:2)
+                fprintf('These spaces can use Cartesian coordinates (L%s)', lower(startSpace(2:3)));
+                fprintf(' or cylindrical (LCh%s).\n', lower(startSpace(2:3)));
+                fprintf('   1. Cartesian\n   2. Cylindrical\n')
+                prompt = input('Which? ');
+            end
+            if prompt == 1
+                Lspace = "'Cartesian'";
+            elseif prompt == 2
+                Lspace = "'Cylindrical'";
+                % Combine arguments
+                kwargs = {"WhitePoint", wp, "Space", Lspace};
+
+            end
+            %Cyl
+            %         case {'DKL'}
+            %             %Background
+            %             fprintf('OK, DKL needs a background luminance to reference.\n')
+            %             fprintf
+        case {'MW', 'MB'}
+
+            %   ^^^rotation, scale,
+        case {'XYZ', 'LMS'}
+            %Funds?
+
+        otherwise
+            fprintf('No options are yet available for the selected space conversion.\n')
+
+
+    end
+    %%%%%
+    %dkl background
+    % funds
+    % xyz, lms = nothing or funds
+    % mw, dkl rotation and tilt
+end
+
+fprintf('Press any key to calculate...\n');
+KbWait;
+fprintf('Running function:\n   %s(%2.4f, %2.4f, %2.4f)\n', conv, vals)
+if strcmpi(startSpace,'dkl')
+    mm = [cont 0 mmLM; 0 cont mmS; 0 0 0];
+    dklvals = adjustAngles(dklvals, 'Visualize', 1, 'RotationAngles', [lmRot, sRot]);%, 'MinimumMotion', mm);
+    [RGB, sat, orig] = func(bkgd, dklvals);
+    lms2 = dkl2lms(bkgd, dklvals);
+    [rgb2, sat2, orig2] = lms2rgb(lms2);
+else
+    [RGB, sat, orig] = func(vals);
+end
+
+fprintf('Your color''s coordinates are:\n')
+fprintf('   (%3.2f, %3.2f, %3.2f)\n', orig);
+fprintf('Rounded:\n')
+fprintf('   (%3.2f, %3.2f, %3.2f)\n', RGB);
+if any(sat)
+    fprintf('Your choice appears to be out of RGB gamut.\n')
+else
+    fprintf('Your choice appears to be in gamut.\n')
+end
+
+f = figure;
+movegui(f, 'northeast');
+axis([0 10 0 10])
+patch([1 9 9 1],[1 1 9 9], RGB)
+axis off
+axis square

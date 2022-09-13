@@ -1,0 +1,26 @@
+Specific user needs:
+
+Crognale: account for individual cone ratios
+    Fundamental generator given inputs:
+        Optical density, cone ratios
+    45:30 ish
+
+MW:
+stockman vs smith-pokorny comparison
+
+Tavakkoli:
+VR version of Metropsis
+
+MW DKL minimum motion convs
+Keep luminance RGB ratios constant for same luminance
+Lum is input from individualized data
+
+MW & MC: input minimum motion individual data.
+Same format as MW and MC???
+
+Add new conversions to existing programs
+Addpath at top
+Test with PR655
+
+Email: mw mc sh fj alireza
+re: send me basic program with color conversions
